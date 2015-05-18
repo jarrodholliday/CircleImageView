@@ -1,6 +1,17 @@
 apply plugin: 'com.android.library'
 
-version = '1.0'
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:1.1.1'
+    }
+}
+
+repositories {
+    jcenter()
+}
 
 android {
     compileSdkVersion 22
