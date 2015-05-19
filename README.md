@@ -53,6 +53,10 @@ You may use the following properties in your XML to customize your CircularImage
 
 * `setOnItemSelectedClickListener(ItemSelectedListener listener)` - let's handle onSelected(View view) and onUnselected(View view)
 
+* `onSelected(View view)` - view is selected
+* `onUnselected(View view)` - view is unselected
+
+
 Developed By
 --------
 
