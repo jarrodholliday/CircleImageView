@@ -6,13 +6,11 @@ CircleImageView is a component which display circle image with customization opt
 
 Release notes
 --------
-1.1.0
-Second version of library support:
+#####1.1.0
 * shows shadow for image;
 * shows shadow for border.
 
-1.0.0
-First version of library suport:
+#####1.0.0
 * change background for *.png images;
 * shows images;
 * realize click listener for this component;
