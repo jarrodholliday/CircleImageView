@@ -4,13 +4,27 @@ CircleImageView is a component which display circle image with customization opt
 <img src="https://github.com/AlexZhukovich/CircleImageView/blob/master/screenshots/circle_image_view_example.png" width="300px" height="500px" />
 <img src="https://github.com/AlexZhukovich/CircleImageView/blob/master/screenshots/circle_image_view_example_selected.png" width="300px" height="500px" />
 
+Release notes
+--------
+1.1.0
+Second version of library support:
+* shows shadow for image;
+* shows shadow for border.
+
+1.0.0
+First version of library suport:
+* change background for *.png images;
+* shows images;
+* realize click listener for this component;
+* shows border (component is selected or component is unselected).
+
 Usage
 --------
 To make a circular ImageView, add this CircleImageView library to your project and add CircleImageView in your layout XML. 
 You can also grab it via Gradle:
 
 ```groovy
-      compile 'com.alexzh:circleimageview:1.0.0@aar'
+      compile 'com.alexzh:circleimageview:1.1.0@aar'
 ```
 
 or Maven:
@@ -19,7 +33,7 @@ or Maven:
 <dependency>
       <groupId>com.alexzh</groupId>
       <artifactId>circleimageview</artifactId>
-      <version>1.0.0</version>
+      <version>1.1.0</version>
       <type>aar</type>
 </dependency>
 ```
@@ -28,26 +42,35 @@ or Maven:
 ```xml
     <com.alexzh.circleimageview.CircleImageView
         android:id="@+id/imageView"
-        android:layout_width="256dp"
-        android:layout_height="256dp"
+        android:layout_width="192dp"
+        android:layout_height="192dp"
         android:clickable="true"
         android:src="@drawable/android_logo"
-        app:view_border="true"
-        app:view_borderWidth="8dp"
-        app:view_borderColor="@color/blue"
-        app:view_selectedColor="@android:color/white"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
         app:view_backgroundColor="@color/colorPrimary"
+        app:view_shadowRadius="4dp"
+        app:view_shadowDx="2dp"
+        app:view_shadowDy="0dp"
+        app:view_shadowColor="@color/grey"
+        app:view_borderWidth="4dp"
+        app:view_selectedColor="@color/blue"
+        app:view_borderColor="@android:color/darker_gray"/>
 ```
 
 You may use the following properties in your XML to customize your CircularImageView.
 
 #####Properties:
 
-* `app:view_backgroundColor`    (color)             
-* `app:view_border`             (boolean)
+* `app:view_backgroundColor`    (color)       
 * `app:view_borderColor`        (color)
 * `app:view_borderWidth`        (dimension)  
 * `app:view_selectedColor`      (color)    
+* `app:view_shadowRadius`       (dimension)
+* `app:view_shadowDx`           (dimension)
+* `app:view_shadowDy`           (dimension)
+* `app:view_shadowColor`        (color)
 
 ###JAVA
 
