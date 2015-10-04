@@ -6,23 +6,50 @@
     tools:context=".MainActivity"
     android:background="@color/grey">
 
-    <com.alexzh.circleimageview.CircleImageView
-        android:id="@+id/imageView"
-        android:layout_width="192dp"
-        android:layout_height="192dp"
-        android:clickable="true"
-        android:src="@drawable/android_logo"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="10dp"
-        app:view_backgroundColor="@color/colorPrimary"
-        app:view_shadowRadius="4dp"
-        app:view_shadowDx="2dp"
-        app:view_shadowDy="0dp"
-        app:view_shadowColor="@color/colorPrimaryDark"
-        app:view_borderWidth="4dp"
-        app:view_selectedColor="@color/blue"
-        app:view_borderColor="@android:color/darker_gray"/>
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="4dp"
+        android:gravity="center_horizontal"
+        android:id="@+id/linearLayout">
+
+        <com.alexzh.circleimageview.CircleImageView
+            android:id="@+id/imageView"
+            android:layout_width="172dp"
+            android:layout_height="172dp"
+            android:clickable="true"
+            android:src="@drawable/android_logo"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="10dp"
+            app:view_backgroundColor="@color/colorPrimary"
+            app:view_shadowRadius="2dp"
+            app:view_shadowDx="2dp"
+            app:view_shadowDy="0dp"
+            app:view_shadowColor="@color/colorPrimaryDark"
+            app:view_borderWidth="4dp"
+            app:view_selectedColor="@color/blue"
+            app:view_borderColor="@android:color/darker_gray"/>
+
+        <com.alexzh.circleimageview.CircleImageView
+            android:layout_width="172dp"
+            android:layout_height="172dp"
+            android:clickable="true"
+            android:src="@drawable/android_logo"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="10dp"
+            app:view_backgroundColor="@color/colorPrimary"
+            app:view_shadowRadius="2dp"
+            app:view_shadowDx="0dp"
+            app:view_shadowDy="2dp"
+            app:view_shadowColor="@color/colorPrimaryDark"
+            app:view_borderWidth="4dp"
+            app:view_selectedColor="@color/blue"
+            app:view_borderColor="@android:color/darker_gray"/>
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/additional_layout"
@@ -30,7 +57,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        android:layout_below="@+id/imageView">
+        android:layout_below="@+id/linearLayout"
+        android:layout_alignLeft="@+id/linearLayout"
+        android:layout_alignStart="@+id/linearLayout">
 
         <TextView
             android:text="@string/hello_world"
@@ -41,14 +70,17 @@
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
             android:textSize="28sp"
-            android:gravity="center" />
+            android:gravity="center"
+            android:visibility="visible" />
 
     </LinearLayout>
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/additional_layout">
+        android:layout_below="@+id/additional_layout"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true">
 
         <LinearLayout
             android:layout_width="match_parent"

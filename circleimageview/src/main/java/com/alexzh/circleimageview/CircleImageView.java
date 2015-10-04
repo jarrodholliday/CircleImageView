@@ -120,26 +120,34 @@ public class CircleImageView extends ImageView {
     @Override
     protected void onDraw(@NonNull Canvas canvas) {
         RectF rect;
-        float minShadowValue = mShadowDx > mShadowDy ? mShadowDx : mShadowDy;
+        float centerX, centerY, radius;
+        float maxShadowValue;
+
+        if (mShadowDx > mShadowDy)
+            maxShadowValue = mShadowDx;
+        else if (mShadowDx < mShadowDy)
+            maxShadowValue = mShadowDy;
+        else
+            maxShadowValue = mShadowDx;
 
         int oldCanvasSize = mMinCanvasSide;
         mMinCanvasSide = getMeasuredWidth() < getMeasuredHeight() ? getMeasuredWidth() : getMeasuredHeight();
 
-        if(oldCanvasSize != mMinCanvasSide)
+        if (oldCanvasSize != mMinCanvasSide)
             updateBitmapShader();
 
         mImagePaint.setShader(mBitmapShader);
 
-        float centerX = (this.getMeasuredWidth() - mShadowRadius+ minShadowValue) / 2;
-        float centerY = (this.getMeasuredHeight() - mShadowRadius + minShadowValue) / 2;
-        float radius = ((mMinCanvasSide - mShadowRadius)/ 2) - mBorderWidth - minShadowValue;
+        centerX = (this.getMeasuredWidth() - maxShadowValue) / 2;
+        centerY = (this.getMeasuredHeight() - maxShadowValue) / 2;
+        radius = (mMinCanvasSide / 2) - mBorderWidth - maxShadowValue - mShadowRadius;
 
         /* draw border */
         if (mHasBorder) {
             if (mHasShadow)
-                mMinCanvasSide = (int) (mMinCanvasSide - mShadowRadius - minShadowValue);
+                mMinCanvasSide = (int) (mMinCanvasSide - mShadowRadius - maxShadowValue);
 
-            rect = getBorderRectF(minShadowValue);
+            rect = getBorderRectF(maxShadowValue);
 
             if (mIsSelected) {
                 setBorderColor(mBorderSelectedColor);
