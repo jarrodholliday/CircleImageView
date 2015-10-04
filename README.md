@@ -6,6 +6,9 @@ CircleImageView is a component which display circle image with customization opt
 
 Release notes
 --------
+#####1.1.1
+* Fix bug (issue #1 on github).
+
 #####1.1.0
 * shows shadow for image;
 * shows shadow for border.
@@ -22,7 +25,7 @@ To make a circular ImageView, add this CircleImageView library to your project a
 You can also grab it via Gradle:
 
 ```groovy
-      compile 'com.alexzh:circleimageview:1.1.0@aar'
+      compile 'com.alexzh:circleimageview:1.1.1@aar'
 ```
 
 or Maven:
@@ -31,7 +34,7 @@ or Maven:
 <dependency>
       <groupId>com.alexzh</groupId>
       <artifactId>circleimageview</artifactId>
-      <version>1.1.0</version>
+      <version>1.1.1</version>
       <type>aar</type>
 </dependency>
 ```
