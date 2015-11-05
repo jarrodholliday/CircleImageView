@@ -43,12 +43,19 @@ public class CircleImageView extends ImageView {
     private float mShadowDy;
     private float mShadowRadius;
     private int mShadowColor;
+    private int mPaddingLeft;
+    private int mPaddingTop;
+    private int mPaddingRight;
+    private int mPaddingBottom;
+
+    private float mMeasuredWidth;
+    private float mMeasuredHeight;
+    private float mMinCanvasSide;
 
     private Paint mImagePaint;
     private Paint mBorderPaint;
     private Paint mBackgroundPaint;
     private Bitmap mImage;
-    private int mMinCanvasSide;
     private BitmapShader mBitmapShader;
 
     private ItemSelectedListener mListener;
@@ -83,6 +90,11 @@ public class CircleImageView extends ImageView {
         TypedArray attributes = context.obtainStyledAttributes(attrs, R.styleable.CircleImageView, defStyle, 0);
         int backgroundColor = attributes.getColor(R.styleable.CircleImageView_view_backgroundColor,
                 context.getResources().getColor(android.R.color.transparent));
+
+        mPaddingLeft = getPaddingLeft();
+        mPaddingRight = getPaddingRight();
+        mPaddingTop = getPaddingTop();
+        mPaddingBottom = getPaddingBottom();
 
         mBorderWidth = attributes.getDimension(R.styleable.CircleImageView_view_borderWidth, BORDER_WIDTH);
         mShadowRadius = attributes.getDimension(R.styleable.CircleImageView_view_shadowRadius, SHADOW_RADIUS);
@@ -130,17 +142,27 @@ public class CircleImageView extends ImageView {
         else
             maxShadowValue = mShadowDx;
 
-        int oldCanvasSize = mMinCanvasSide;
-        mMinCanvasSide = getMeasuredWidth() < getMeasuredHeight() ? getMeasuredWidth() : getMeasuredHeight();
+        mMeasuredWidth = (getMeasuredWidth() - mPaddingLeft - mPaddingRight);
+        mMeasuredHeight = (getMeasuredHeight() - mPaddingTop - mPaddingBottom);
+
+        float oldCanvasSize = mMinCanvasSide;
+        mMinCanvasSide = mMeasuredWidth < mMeasuredHeight ? mMeasuredWidth : mMeasuredHeight;
 
         if (oldCanvasSize != mMinCanvasSide)
             updateBitmapShader();
 
         mImagePaint.setShader(mBitmapShader);
 
-        centerX = (this.getMeasuredWidth() - maxShadowValue) / 2;
-        centerY = (this.getMeasuredHeight() - maxShadowValue) / 2;
-        radius = (mMinCanvasSide / 2) - mBorderWidth - maxShadowValue - mShadowRadius;
+        centerX = ((mMeasuredWidth - maxShadowValue) / 2.0f) + mPaddingLeft;
+        centerY = ((mMeasuredHeight - maxShadowValue) / 2.0f) + mPaddingTop;
+
+        if (mMeasuredHeight > mMeasuredWidth) {
+            centerY -= (mMeasuredHeight - mMeasuredWidth) / 2.0f;
+        } else if (mMeasuredWidth > mMeasuredHeight) {
+            centerX -= (mMeasuredWidth - mMeasuredHeight) / 2.0f;
+        }
+
+        radius = (mMinCanvasSide / 2.0f) - mBorderWidth - maxShadowValue - mShadowRadius;
 
         /* draw border */
         if (mHasBorder) {
@@ -165,12 +187,18 @@ public class CircleImageView extends ImageView {
         canvas.drawCircle(centerX, centerY, radius, mImagePaint);
     }
 
-    private RectF getBorderRectF(float minShadowValue) {
-        return new RectF(
-                ((0 + mBorderWidth + mShadowRadius) / 2) + minShadowValue,
-                ((0 + mBorderWidth + mShadowRadius) / 2) + minShadowValue,
-                ((mMinCanvasSide - (mBorderWidth - mShadowRadius) / 2)) - minShadowValue,
-                ((mMinCanvasSide - (mBorderWidth - mShadowRadius) / 2)) - minShadowValue);
+    private RectF getBorderRectF(float maxShadowValue) {
+        float left = ((0 + mBorderWidth + mShadowRadius) / 2) + maxShadowValue;
+        float top = ((0 + mBorderWidth + mShadowRadius) / 2) + maxShadowValue;
+        float right = ((mMinCanvasSide - (mBorderWidth - mShadowRadius) / 2)) - maxShadowValue;
+        float bottom = ((mMinCanvasSide - (mBorderWidth - mShadowRadius) / 2)) - maxShadowValue;
+
+        left += mPaddingLeft;
+        top += mPaddingTop;
+        right += mPaddingLeft;
+        bottom += mPaddingTop;
+
+        return new RectF(left, top, right, bottom);
     }
 
     @Override
@@ -195,7 +223,7 @@ public class CircleImageView extends ImageView {
     }
 
     /**
-     * Draw shadow for image or boder
+     * Draw shadow for image or border
      */
     private void drawShadow() {
         if (mHasBorder)
@@ -315,15 +343,22 @@ public class CircleImageView extends ImageView {
      * the Circle upon drawing.
      */
     public void updateBitmapShader() {
+        float scale;
+
         if (mImage == null)
             return;
 
         mBitmapShader = new BitmapShader(mImage, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
-
         if(mMinCanvasSide != mImage.getWidth() || mMinCanvasSide != mImage.getHeight()) {
             Matrix matrix = new Matrix();
-            float scale = (float) mMinCanvasSide / (float) mImage.getWidth();
+
+            if (mMeasuredHeight > mMeasuredWidth)
+                scale = (mMeasuredWidth - mBorderWidth) / mImage.getHeight();
+            else
+                scale = (mMeasuredHeight - mBorderWidth) / mImage.getWidth();
+
             matrix.setScale(scale, scale);
+            matrix.postTranslate(mPaddingLeft + mBorderWidth, mPaddingTop + mBorderWidth);
             mBitmapShader.setLocalMatrix(matrix);
         }
     }

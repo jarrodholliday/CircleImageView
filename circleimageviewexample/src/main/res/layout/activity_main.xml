@@ -23,7 +23,6 @@
             android:src="@drawable/android_logo"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="10dp"
             app:view_backgroundColor="@color/colorPrimary"
             app:view_shadowRadius="2dp"
             app:view_shadowDx="2dp"
@@ -31,7 +30,11 @@
             app:view_shadowColor="@color/colorPrimaryDark"
             app:view_borderWidth="4dp"
             app:view_selectedColor="@color/blue"
-            app:view_borderColor="@android:color/darker_gray"/>
+            app:view_borderColor="@android:color/darker_gray"
+            android:paddingLeft="24dp"
+            android:paddingTop="40dp"
+            android:layout_marginTop="10dp"
+            android:paddingBottom="10dp" />
 
         <com.alexzh.circleimageview.CircleImageView
             android:layout_width="172dp"
@@ -48,7 +51,8 @@
             app:view_shadowColor="@color/colorPrimaryDark"
             app:view_borderWidth="4dp"
             app:view_selectedColor="@color/blue"
-            app:view_borderColor="@android:color/darker_gray"/>
+            app:view_borderColor="@android:color/darker_gray"
+            android:scaleType="centerCrop" />
     </LinearLayout>
 
     <LinearLayout
@@ -108,7 +112,8 @@
                         android:layout_marginLeft="12dp"
                         android:layout_marginRight="12dp"
                         android:layout_marginBottom="10dp"
-                        app:view_backgroundColor="@color/colorPrimary"/>
+                        app:view_backgroundColor="@color/colorPrimary"
+                        android:scaleType="fitXY" />
 
                     <TextView
                         android:layout_width="match_parent"
