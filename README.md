@@ -6,6 +6,9 @@ CircleImageView is a component which display circle image with customization opt
 
 Release notes
 --------
+#####1.1.2
+* Support padding parameters (paddingLeft, paddingTop, paddingRight, paddingBottom).
+
 #####1.1.1
 * Fix bug (issue #1 on github).
 
@@ -25,7 +28,7 @@ To make a circular ImageView, add this CircleImageView library to your project a
 You can also grab it via Gradle:
 
 ```groovy
-      compile 'com.alexzh:circleimageview:1.1.1@aar'
+      compile 'com.alexzh:circleimageview:1.1.2@aar'
 ```
 
 or Maven:
@@ -34,7 +37,7 @@ or Maven:
 <dependency>
       <groupId>com.alexzh</groupId>
       <artifactId>circleimageview</artifactId>
-      <version>1.1.1</version>
+      <version>1.1.2</version>
       <type>aar</type>
 </dependency>
 ```
