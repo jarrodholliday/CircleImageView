@@ -215,7 +215,7 @@ public class CircleImageView extends ImageView {
                 break;
         }
         // Redraw image and return super type
-        this.invalidate();
+        invalidate();
         return super.dispatchTouchEvent(event);
     }
 
@@ -245,7 +245,7 @@ public class CircleImageView extends ImageView {
     public void setBackgroundColor(int backgroundColor) {
         if (mBackgroundPaint != null)
             mBackgroundPaint.setColor(backgroundColor);
-        this.invalidate();
+        invalidate();
     }
 
     /**
@@ -255,7 +255,7 @@ public class CircleImageView extends ImageView {
     public void setBorderColor(int borderColor) {
         if (mBorderPaint != null)
             mBorderPaint.setColor(borderColor);
-        this.invalidate();
+        invalidate();
     }
 
     /**
