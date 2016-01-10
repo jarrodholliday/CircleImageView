@@ -56,7 +56,6 @@ public class CircleImageView extends ImageView {
     private Paint mBorderPaint;
     private Paint mBackgroundPaint;
     private Bitmap mImage;
-    private BitmapShader mBitmapShader;
 
     private ItemSelectedListener mListener;
 
@@ -150,8 +149,6 @@ public class CircleImageView extends ImageView {
 
         if (oldCanvasSize != mMinCanvasSide)
             updateBitmapShader();
-
-        mImagePaint.setShader(mBitmapShader);
 
         centerX = ((mMeasuredWidth - maxShadowValue) / 2.0f) + mPaddingLeft;
         centerY = ((mMeasuredHeight - maxShadowValue) / 2.0f) + mPaddingTop;
@@ -348,7 +345,7 @@ public class CircleImageView extends ImageView {
         if (mImage == null)
             return;
 
-        mBitmapShader = new BitmapShader(mImage, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
+        BitmapShader bitmapShader = new BitmapShader(mImage, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
         if(mMinCanvasSide != mImage.getWidth() || mMinCanvasSide != mImage.getHeight()) {
             Matrix matrix = new Matrix();
 
@@ -359,7 +356,9 @@ public class CircleImageView extends ImageView {
 
             matrix.setScale(scale, scale);
             matrix.postTranslate(mPaddingLeft + mBorderWidth, mPaddingTop + mBorderWidth);
-            mBitmapShader.setLocalMatrix(matrix);
+            bitmapShader.setLocalMatrix(matrix);
+
+            mImagePaint.setShader(bitmapShader);
         }
     }
 }
