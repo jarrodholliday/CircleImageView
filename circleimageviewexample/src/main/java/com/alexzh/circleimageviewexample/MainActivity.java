@@ -1,20 +1,19 @@
 package com.alexzh.circleimageviewexample;
 
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.alexzh.circleimageview.CircleImageView;
 import com.alexzh.circleimageview.ItemSelectedListener;
 
 
-public class MainActivity extends ActionBarActivity implements ItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements ItemSelectedListener {
 
     private CircleImageView mImageView;
-    private LinearLayout mAdditionalLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,8 +21,18 @@ public class MainActivity extends ActionBarActivity implements ItemSelectedListe
         setContentView(R.layout.activity_main);
 
         mImageView = (CircleImageView) findViewById(R.id.imageView);
-        mAdditionalLayout = (LinearLayout) findViewById(R.id.additional_layout);
-        mImageView.setOnItemSelectedClickListener(this);
+
+        mImageView.setOnItemSelectedClickListener(new ItemSelectedListener() {
+            @Override
+            public void onSelected(View view) {
+                Toast.makeText(getApplicationContext(), "onSelected", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onUnselected(View view) {
+                Toast.makeText(getApplicationContext(), "onUnselected", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override
@@ -50,11 +59,11 @@ public class MainActivity extends ActionBarActivity implements ItemSelectedListe
 
     @Override
     public void onSelected(View view) {
-        mAdditionalLayout.setVisibility(View.VISIBLE);
+        //mAdditionalLayout.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void onUnselected(View view) {
-        mAdditionalLayout.setVisibility(View.GONE);
+        //mAdditionalLayout.setVisibility(View.GONE);
     }
 }

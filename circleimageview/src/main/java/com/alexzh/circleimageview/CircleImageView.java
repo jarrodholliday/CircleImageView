@@ -6,15 +6,14 @@ import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
+import android.media.ThumbnailUtils;
 import android.os.Build;
-import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -24,40 +23,37 @@ import android.widget.ImageView;
  * Custom ImageView for circular images in Android.
  */
 public class CircleImageView extends ImageView {
-    private final static String TAG = "CIRCLE_IMAGE_VIEW";
+    private static final int DEFAULT_SHADOW_COLOR = Color.BLACK;
+    private static final int DEFAULT_BORDER_COLOR = Color.WHITE;
+    private static final int DEFAULT_BORDER_SELECTED_COLOR = Color.RED;
 
-    private final static float CIRCLE_DEGREE = 360;
-    private final static float BORDER_WIDTH = 0.0f;
-    private final static float SHADOW_RADIUS = 0.0f;
-    private final static float SHADOW_DX = 2.0f;
-    private final static float SHADOW_DY = 2.0f;
+    private static final float DEFAULT_SHADOW_RADIUS = 0.0f;
+    private static final float DEFAULT_SHADOW_DX = 0.0f;
+    private static final float DEFAULT_SHADOW_DY = 0.0f;
+    private static final int DEFAULT_BORDER_WIDTH = 0;
 
-    private boolean mHasBorder;
-    private float mBorderWidth;
-    private int mBorderColor;
-    private int mBorderSelectedColor;
-    private boolean mIsSelected;
-
-    private boolean mHasShadow;
-    private float mShadowDx;
-    private float mShadowDy;
+    private int mBorderWidth;
+    private int mCanvasSize;
     private float mShadowRadius;
     private int mShadowColor;
-    private int mPaddingLeft;
-    private int mPaddingTop;
-    private int mPaddingRight;
-    private int mPaddingBottom;
+    private float mShadowDx;
+    private float mShadowDy;
 
-    private float mMeasuredWidth;
-    private float mMeasuredHeight;
-    private float mMinCanvasSide;
+    private Bitmap mImageBitmap;
+    private Drawable mDrawable;
+    private Paint mPaintImage;
+    private Paint mPaintBorder;
+    private Paint mPaintBackground;
 
-    private Paint mImagePaint;
-    private Paint mBorderPaint;
-    private Paint mBackgroundPaint;
-    private Bitmap mImage;
+    private int mBorderColor;
+    private int mBorderSelectedColor;
+
+    private int mCenterX;
+    private int mCenterY;
+    private int mRadius;
 
     private ItemSelectedListener mListener;
+    private boolean mIsSelected;
 
     public CircleImageView(Context context) {
         this(context, null, R.styleable.CircleImageViewStyle_circleImageViewDefault);
@@ -78,203 +74,204 @@ public class CircleImageView extends ImageView {
         init(context, attrs, defStyleAttr);
     }
 
-    private void init(Context context, AttributeSet attrs, int defStyle) {
-        mImagePaint = new Paint();
-        mBorderPaint = new Paint();
-        mBackgroundPaint = new Paint();
+    private void init(Context context, AttributeSet attrs, int defStyleAttr) {
+        // Init paint
+        mPaintImage = new Paint();
+        mPaintImage.setAntiAlias(true);
 
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
-            setLayerType(LAYER_TYPE_SOFTWARE, null);
+        mPaintBorder = new Paint();
+        mPaintBorder.setAntiAlias(true);
 
-        TypedArray attributes = context.obtainStyledAttributes(attrs, R.styleable.CircleImageView, defStyle, 0);
-        int backgroundColor = attributes.getColor(R.styleable.CircleImageView_view_backgroundColor,
-                context.getResources().getColor(android.R.color.transparent));
+        mPaintBackground = new Paint();
+        mPaintBackground.setAntiAlias(true);
 
-        mPaddingLeft = getPaddingLeft();
-        mPaddingRight = getPaddingRight();
-        mPaddingTop = getPaddingTop();
-        mPaddingBottom = getPaddingBottom();
+        // Load the styled attributes and set their properties
+        TypedArray attributes = context.obtainStyledAttributes(attrs, R.styleable.CircleImageView, defStyleAttr, 0);
 
-        mBorderWidth = attributes.getDimension(R.styleable.CircleImageView_view_borderWidth, BORDER_WIDTH);
-        mShadowRadius = attributes.getDimension(R.styleable.CircleImageView_view_shadowRadius, SHADOW_RADIUS);
+        //background color
+        setBackgroundColor(
+                attributes.getColor(R.styleable.CircleImageView_view_backgroundColor,
+                        context.getResources().getColor(android.R.color.transparent)));
 
-        setBackgroundColor(backgroundColor);
+        //border color
+        mBorderColor = attributes.getColor(R.styleable.CircleImageView_view_borderColor, DEFAULT_BORDER_COLOR);
+        setBorderColor(mBorderColor);
 
-        mImagePaint.setAntiAlias(true);
-        mBorderPaint.setAntiAlias(true);
-        mBorderPaint.setStyle(Paint.Style.STROKE);
-        mBackgroundPaint.setAntiAlias(true);
-        mBackgroundPaint.setStyle(Paint.Style.FILL);
 
-        if (mBorderWidth > 0) {
-            mBorderColor = attributes.getColor(R.styleable.CircleImageView_view_borderColor,
-                    context.getResources().getColor(android.R.color.white));
-            mBorderSelectedColor = attributes.getColor(R.styleable.CircleImageView_view_selectedColor,
-                    context.getResources().getColor(android.R.color.white));
-            setBorderWidth(mBorderWidth);
-            setBorderColor(mBorderColor);
-            mHasBorder = true;
-        }
+        //border width
+        setBorderWidth(
+                attributes.getDimensionPixelOffset(R.styleable.CircleImageView_view_borderWidth, DEFAULT_BORDER_WIDTH));
 
-        if (mShadowRadius > 0) {
-            mShadowDx = attributes.getDimension(R.styleable.CircleImageView_view_shadowDx, SHADOW_DX);
-            mShadowDy = attributes.getDimension(R.styleable.CircleImageView_view_shadowDy, SHADOW_DY);
-            mShadowColor = attributes.getColor(R.styleable.CircleImageView_view_shadowColor,
-                    context.getResources().getColor(android.R.color.black));
-            mHasShadow = true;
-            drawShadow();
-        }
+        //selected border color
+        mBorderSelectedColor = attributes.getColor(R.styleable.CircleImageView_view_selectedColor, DEFAULT_BORDER_SELECTED_COLOR);
 
-        attributes.recycle();
+        //shadow radius, color, dx, dy
+        drawShadow(
+                attributes.getDimension(R.styleable.CircleImageView_view_shadowRadius, DEFAULT_SHADOW_RADIUS),
+                attributes.getColor(R.styleable.CircleImageView_view_shadowColor, DEFAULT_SHADOW_COLOR),
+                attributes.getDimension(R.styleable.CircleImageView_view_shadowDx, DEFAULT_SHADOW_DX),
+                attributes.getDimension(R.styleable.CircleImageView_view_shadowDy, DEFAULT_SHADOW_DY));
     }
 
     @Override
-    protected void onDraw(@NonNull Canvas canvas) {
-        RectF rect;
-        float centerX, centerY, radius;
-        float maxShadowValue;
-
-        if (mShadowDx > mShadowDy)
-            maxShadowValue = mShadowDx;
-        else if (mShadowDx < mShadowDy)
-            maxShadowValue = mShadowDy;
-        else
-            maxShadowValue = mShadowDx;
-
-        mMeasuredWidth = (getMeasuredWidth() - mPaddingLeft - mPaddingRight);
-        mMeasuredHeight = (getMeasuredHeight() - mPaddingTop - mPaddingBottom);
-
-        float oldCanvasSize = mMinCanvasSide;
-        mMinCanvasSide = mMeasuredWidth < mMeasuredHeight ? mMeasuredWidth : mMeasuredHeight;
-
-        if (oldCanvasSize != mMinCanvasSide)
-            updateBitmapShader();
-
-        centerX = ((mMeasuredWidth - maxShadowValue) / 2.0f) + mPaddingLeft;
-        centerY = ((mMeasuredHeight - maxShadowValue) / 2.0f) + mPaddingTop;
-
-        if (mMeasuredHeight > mMeasuredWidth) {
-            centerY -= (mMeasuredHeight - mMeasuredWidth) / 2.0f;
-        } else if (mMeasuredWidth > mMeasuredHeight) {
-            centerX -= (mMeasuredWidth - mMeasuredHeight) / 2.0f;
-        }
-
-        radius = (mMinCanvasSide / 2.0f) - mBorderWidth - maxShadowValue - mShadowRadius;
-
-        /* draw border */
-        if (mHasBorder) {
-            if (mHasShadow)
-                mMinCanvasSide = (int) (mMinCanvasSide - mShadowRadius - maxShadowValue);
-
-            rect = getBorderRectF(maxShadowValue);
-
-            if (mIsSelected) {
-                setBorderColor(mBorderSelectedColor);
-                canvas.drawArc(rect, CIRCLE_DEGREE, CIRCLE_DEGREE, false, mBorderPaint);
-            } else {
-                setBorderColor(mBorderColor);
-                canvas.drawArc(rect, CIRCLE_DEGREE, CIRCLE_DEGREE, false, mBorderPaint);
-            }
-        }
-
-        /* draw background */
-        canvas.drawCircle(centerX, centerY, radius, mBackgroundPaint);
-
-        /* draw image */
-        canvas.drawCircle(centerX, centerY, radius, mImagePaint);
-    }
-
-    private RectF getBorderRectF(float maxShadowValue) {
-        float left = ((0 + mBorderWidth + mShadowRadius) / 2) + maxShadowValue;
-        float top = ((0 + mBorderWidth + mShadowRadius) / 2) + maxShadowValue;
-        float right = ((mMinCanvasSide - (mBorderWidth - mShadowRadius) / 2)) - maxShadowValue;
-        float bottom = ((mMinCanvasSide - (mBorderWidth - mShadowRadius) / 2)) - maxShadowValue;
-
-        left += mPaddingLeft;
-        top += mPaddingTop;
-        right += mPaddingLeft;
-        bottom += mPaddingTop;
-
-        return new RectF(left, top, right, bottom);
-    }
-
-    @Override
-    public boolean dispatchTouchEvent(@NonNull MotionEvent event) {
+    public boolean dispatchTouchEvent(MotionEvent event) {
         if (!isClickable()) {
             mIsSelected = false;
             return super.onTouchEvent(event);
         }
-        switch(event.getAction()) {
+        switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 this.mIsSelected = !mIsSelected;
                 if (mIsSelected && mListener != null) {
                     mListener.onSelected(this);
+                    setBorderColor(mBorderSelectedColor);
                 } else if (!mIsSelected && mListener != null) {
                     mListener.onUnselected(this);
+                    setBorderColor(mBorderColor);
                 }
                 break;
         }
-        // Redraw image and return super type
         invalidate();
         return super.dispatchTouchEvent(event);
     }
 
-    /**
-     * Draw shadow for image or border
-     */
-    private void drawShadow() {
-        if (mHasBorder)
-            mBorderPaint.setShadowLayer(mShadowRadius, mShadowDx, mShadowDy, mShadowColor);
-        else
-            mBackgroundPaint.setShadowLayer(mShadowRadius, mShadowDx, mShadowDy, mShadowColor);
-    }
-
-
-    /**
-     * Sets the CircleImageView's selected listener.
-     * @param listener The new listener to set for image.
-     */
     public void setOnItemSelectedClickListener(ItemSelectedListener listener) {
         this.mListener = listener;
     }
 
-    /**
-     * Sets the CircleImageView's background color.
-     * @param backgroundColor The new color to set the background.
-     */
-    public void setBackgroundColor(int backgroundColor) {
-        if (mBackgroundPaint != null)
-            mBackgroundPaint.setColor(backgroundColor);
-        invalidate();
-    }
-
-    /**
-     * Sets the CircleImageView's basic border color.
-     * @param borderColor The new color to set the border.
-     */
-    public void setBorderColor(int borderColor) {
-        if (mBorderPaint != null)
-            mBorderPaint.setColor(borderColor);
-        invalidate();
-    }
-
-    /**
-     * Sets the CircleImageView's border width in pixels.
-     * @param borderWidth Width in pixels for the border.
-     */
-    public void setBorderWidth(float borderWidth) {
+    public void setBorderWidth(int borderWidth) {
         this.mBorderWidth = borderWidth;
-        if(mBorderPaint != null)
-            mBorderPaint.setStrokeWidth(borderWidth);
         requestLayout();
         invalidate();
     }
 
-    public Bitmap drawableToBitmap(Drawable drawable) {
-        if (drawable == null)
+    public void setBorderColor(int borderColor) {
+        if (mPaintBorder != null)
+            mPaintBorder.setColor(borderColor);
+        invalidate();
+    }
+
+    public void setBackgroundColor(int backgroundColor) {
+        if (mPaintBackground != null)
+            mPaintBackground.setColor(backgroundColor);
+        invalidate();
+    }
+
+    public void addShadow() {
+        if (mShadowRadius == 0)
+            mShadowRadius = DEFAULT_SHADOW_RADIUS;
+        drawShadow(mShadowRadius, mShadowColor, mShadowDx, mShadowDy);
+        invalidate();
+    }
+
+    public void setShadowRadius(float shadowRadius) {
+        drawShadow(shadowRadius, mShadowColor, mShadowDx, mShadowDy);
+        invalidate();
+    }
+
+    public void setShadowColor(int shadowColor) {
+        drawShadow(mShadowRadius, shadowColor, mShadowDx, mShadowDy);
+        invalidate();
+    }
+
+    public void setShadowDx(float shadowDx) {
+        drawShadow(mShadowRadius, mShadowColor, shadowDx, mShadowDy);
+        invalidate();
+    }
+
+    public void setShadowDy(float shadowDy) {
+        drawShadow(mShadowRadius, mShadowColor, mShadowDx, shadowDy);
+        invalidate();
+    }
+
+    @Override
+    public void onDraw(Canvas canvas) {
+
+        initImage();
+
+        if (mImageBitmap == null)
+            return;
+
+        calculateCircleData(canvas);
+        canvas.drawCircle(mCenterX + mBorderWidth, mCenterY + mBorderWidth, mRadius + mBorderWidth - (mShadowRadius + mShadowRadius / 2), mPaintBorder);
+        canvas.drawCircle(mCenterX + mBorderWidth, mCenterY + mBorderWidth, mRadius - (mShadowRadius + mShadowRadius / 2), mPaintBackground);
+        canvas.drawCircle(mCenterX + mBorderWidth, mCenterY + mBorderWidth, mRadius - (mShadowRadius + mShadowRadius / 2), mPaintImage);
+    }
+
+    private void calculateCircleData(Canvas canvas) {
+        if (mRadius != 0)
+            return;
+
+        mCanvasSize = canvas.getWidth() - getPaddingLeft() - getPaddingRight() - (mBorderWidth * 2);
+        if ((canvas.getHeight() - getPaddingTop() - getPaddingBottom() - (mBorderWidth *2)) < mCanvasSize) {
+            mCanvasSize = canvas.getHeight() - getPaddingTop() - getPaddingBottom() - (mBorderWidth *2);
+        }
+
+        //Calculate radius
+        mRadius = (mCanvasSize - (mBorderWidth * 2)) / 2;
+
+        //calculate center points
+        mCenterX = getPaddingLeft() + mRadius + mBorderWidth;
+        mCenterY = getPaddingTop() + mRadius + mBorderWidth;
+
+        updateShader();
+    }
+
+    private void initImage() {
+        if (this.mDrawable == getDrawable())
+            return;
+
+        this.mDrawable = getDrawable();
+        this.mImageBitmap = drawableToBitmap(this.mDrawable);
+    }
+
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        mCanvasSize = w;
+        mRadius = 0;
+        if (h < mCanvasSize)
+            mCanvasSize = h;
+        if (mImageBitmap != null)
+            updateShader();
+    }
+
+    private void drawShadow(float shadowRadius, int shadowColor, float shadowDx, float shadowDy) {
+        this.mShadowRadius = shadowRadius;
+        this.mShadowColor = shadowColor;
+        this.mShadowDx = shadowDx;
+        this.mShadowDy = shadowDy;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.HONEYCOMB) {
+            setLayerType(LAYER_TYPE_SOFTWARE, mPaintBorder);
+        }
+        mPaintBorder.setShadowLayer(shadowRadius, shadowDx, shadowDy, shadowColor);
+    }
+
+    private void updateShader() {
+        if (this.mImageBitmap == null)
+            return;
+
+        Matrix matrix = new Matrix();
+
+        BitmapShader shader = new BitmapShader(Bitmap.createScaledBitmap(
+                ThumbnailUtils.extractThumbnail(
+                        mImageBitmap,
+                        mCanvasSize,
+                        mCanvasSize),
+                mCanvasSize,
+                mCanvasSize,
+                true),
+                Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
+
+        matrix.postTranslate(getPaddingLeft() + mBorderWidth, getPaddingTop() + mBorderWidth);
+        shader.setLocalMatrix(matrix);
+        mPaintImage.setShader(shader);
+    }
+
+    private Bitmap drawableToBitmap(Drawable drawable) {
+        if (drawable == null) {
             return null;
-        else if (drawable instanceof BitmapDrawable) {
-            Log.i(TAG, "Bitmap drawable!");
+        } else if (drawable instanceof BitmapDrawable) {
             return ((BitmapDrawable) drawable).getBitmap();
         }
 
@@ -291,74 +288,53 @@ public class CircleImageView extends ImageView {
             drawable.draw(canvas);
             return bitmap;
         } catch (OutOfMemoryError e) {
-            Log.e(TAG, "Encountered OutOfMemoryError while generating bitmap!");
+            Log.e(getClass().toString(), "Encountered OutOfMemoryError while generating bitmap!");
             return null;
         }
     }
 
     @Override
-    public void setImageURI(Uri uri) {
-        super.setImageURI(uri);
-
-        // Extract a Bitmap out of the drawable & set it as the main shader
-        mImage = drawableToBitmap(getDrawable());
-        if(mMinCanvasSide > 0)
-            updateBitmapShader();
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        int width = measureWidth(widthMeasureSpec);
+        int height = measureHeight(heightMeasureSpec);
+        int imageSize = (width < height) ? width : height;
+        setMeasuredDimension(imageSize, imageSize);
     }
 
-    @Override
-    public void setImageResource(int resId) {
-        super.setImageResource(resId);
+    private int measureWidth(int measureSpec) {
 
-        // Extract a Bitmap out of the drawable & set it as the main shader
-        mImage = drawableToBitmap(getDrawable());
-        if(mMinCanvasSide > 0)
-            updateBitmapShader();
-    }
+        int result;
+        int specMode = MeasureSpec.getMode(measureSpec);
+        int specSize = MeasureSpec.getSize(measureSpec);
 
-    @Override
-    public void setImageDrawable(Drawable drawable) {
-        super.setImageDrawable(drawable);
-
-        // Extract a Bitmap out of the drawable & set it as the main shader
-        mImage = drawableToBitmap(getDrawable());
-        if(mMinCanvasSide > 0)
-            updateBitmapShader();
-    }
-
-    @Override
-    public void setImageBitmap(Bitmap bm) {
-        super.setImageBitmap(bm);
-
-        mImage = bm;
-        if(mMinCanvasSide > 0)
-            updateBitmapShader();
-    }
-
-    /**
-     * Re-initializes the shader texture used to fill in
-     * the Circle upon drawing.
-     */
-    public void updateBitmapShader() {
-        float scale;
-
-        if (mImage == null)
-            return;
-
-        BitmapShader bitmapShader = new BitmapShader(mImage, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
-        if(mMinCanvasSide != mImage.getWidth() || mMinCanvasSide != mImage.getHeight()) {
-            Matrix matrix = new Matrix();
-
-            if (mMeasuredHeight > mMeasuredWidth)
-                scale = (mMeasuredWidth - mBorderWidth) / mImage.getHeight();
-            else
-                scale = (mMeasuredHeight - mBorderWidth) / mImage.getWidth();
-
-            matrix.setScale(scale, scale);
-            matrix.postTranslate(mPaddingLeft + mBorderWidth, mPaddingTop + mBorderWidth);
-            bitmapShader.setLocalMatrix(matrix);
-
-            mImagePaint.setShader(bitmapShader);
+        if (specMode == MeasureSpec.EXACTLY) {
+            // The parent has determined an exact size for the child.
+            result = specSize;
+        } else if (specMode == MeasureSpec.AT_MOST) {
+            // The child can be as large as it wants up to the specified size.
+            result = specSize;
+        } else {
+            // The parent has not imposed any constraint on the child.
+            result = mCanvasSize;
         }
+        return result;
+    }
+
+    private int measureHeight(int measureSpecHeight) {
+        int result;
+        int specMode = MeasureSpec.getMode(measureSpecHeight);
+        int specSize = MeasureSpec.getSize(measureSpecHeight);
+
+        if (specMode == MeasureSpec.EXACTLY) {
+            // We were told how big to be
+            result = specSize;
+        } else if (specMode == MeasureSpec.AT_MOST) {
+            // The child can be as large as it wants up to the specified size.
+            result = specSize;
+        } else {
+            // Measure the text (beware: ascent is a negative number)
+            result = mCanvasSize;
+        }
+        return (result + 2);
     }
 }
