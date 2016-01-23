@@ -12,7 +12,6 @@
         android:layout_height="172dp"
         android:clickable="true"
         android:src="@drawable/android_logo"
-        android:layout_alignParentTop="true"
         app:view_backgroundColor="@color/colorPrimary"
         app:view_shadowRadius="2dp"
         app:view_shadowDx="2dp"
@@ -23,5 +22,7 @@
         app:view_borderColor="@android:color/darker_gray"
         android:paddingLeft="24dp"
         android:paddingTop="40dp"
-        android:paddingBottom="10dp" />
+        android:paddingBottom="10dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
 </RelativeLayout>
