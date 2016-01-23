@@ -40,7 +40,7 @@ or Maven:
 <dependency>
       <groupId>com.alexzh</groupId>
       <artifactId>circleimageview</artifactId>
-      <version>1.1.2</version>
+      <version>1.1.3</version>
       <type>aar</type>
 </dependency>
 ```
