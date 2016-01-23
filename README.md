@@ -1,11 +1,14 @@
 # CircleImageView
 CircleImageView is a component which display circle image with customization options
 
-<img src="https://github.com/AlexZhukovich/CircleImageView/blob/master/screenshots/circle_image_view_example.png" width="300px" height="500px" />
-<img src="https://github.com/AlexZhukovich/CircleImageView/blob/master/screenshots/circle_image_view_example_selected.png" width="300px" height="500px" />
+<img src="https://github.com/AlexZhukovich/CircleImageView/blob/master/screenshots/screenshot_v1_1_3.png" width="300px" height="500px" />
 
 Release notes
 --------
+#####1.1.3
+* Improve component performance
+* Optimization of image drawing
+
 #####1.1.2
 * Support padding parameters (paddingLeft, paddingTop, paddingRight, paddingBottom).
 
@@ -28,7 +31,7 @@ To make a circular ImageView, add this CircleImageView library to your project a
 You can also grab it via Gradle:
 
 ```groovy
-      compile 'com.alexzh:circleimageview:1.1.2@aar'
+      compile 'com.alexzh:circleimageview:1.1.3@aar'
 ```
 
 or Maven:
@@ -91,25 +94,18 @@ Aliaksandr Zhukovich - http://alexzh.com
 
 License
 --------
+```
+Copyright (C) 2016 Aliaksandr Zhukovich (http://alexzh.com)
 
-    The MIT License (MIT)
-    
-    Copyright (c) 2015 Aliaksandr Zhukovich
-    
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to deal
-    in the Software without restriction, including without limitation the rights
-    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
-    
-    The above copyright notice and this permission notice shall be included in
-    all copies or substantial portions of the Software.
-    
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-    THE SOFTWARE.
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0	     
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+```
