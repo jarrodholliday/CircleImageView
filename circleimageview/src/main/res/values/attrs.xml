@@ -19,7 +19,7 @@
         <!-- Vertical shadow offset -->
         <attr name="view_shadowDy" format="dimension"/>
         <!-- The color of shadow -->
-        <attr name="view_shadowColor" format="dimension"/>
+        <attr name="view_shadowColor" format="color"/>
     </declare-styleable>
 
     <declare-styleable name="CircleImageViewStyle">
