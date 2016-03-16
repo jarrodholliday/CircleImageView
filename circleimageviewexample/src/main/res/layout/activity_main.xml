@@ -1,28 +1,31 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<android.support.v4.widget.DrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/drawerLayout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".MainActivity"
-    android:background="@color/grey">
+    android:layout_height="match_parent">
 
-    <com.alexzh.circleimageview.CircleImageView
-        android:id="@+id/imageView"
-        android:layout_width="172dp"
-        android:layout_height="172dp"
-        android:clickable="true"
-        android:src="@drawable/android_logo"
-        app:view_backgroundColor="@color/colorPrimary"
-        app:view_shadowRadius="2dp"
-        app:view_shadowDx="2dp"
-        app:view_shadowDy="0dp"
-        app:view_shadowColor="@color/colorPrimaryDark"
-        app:view_borderWidth="4dp"
-        app:view_selectedColor="@color/blue"
-        app:view_borderColor="@android:color/darker_gray"
-        android:paddingLeft="24dp"
-        android:paddingTop="40dp"
-        android:paddingBottom="10dp"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true" />
-</RelativeLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <include
+            layout="@layout/toolbar" />
+
+        <FrameLayout
+            android:id="@+id/container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+    </LinearLayout>
+
+    <android.support.design.widget.NavigationView
+        android:id="@+id/navigation"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        app:headerLayout="@layout/drawer_header"
+        app:menu="@menu/drawer_menu"  />
+
+</android.support.v4.widget.DrawerLayout>

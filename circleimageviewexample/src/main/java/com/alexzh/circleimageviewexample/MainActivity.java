@@ -1,69 +1,63 @@
 package com.alexzh.circleimageviewexample;
 
 import android.os.Bundle;
+import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.view.Menu;
+import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
-
-import com.alexzh.circleimageview.CircleImageView;
-import com.alexzh.circleimageview.ItemSelectedListener;
 
 
-public class MainActivity extends AppCompatActivity implements ItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener,
+        NavigationView.OnNavigationItemSelectedListener {
 
-    private CircleImageView mImageView;
+    private DrawerLayout mDrawerLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mImageView = (CircleImageView) findViewById(R.id.imageView);
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout);
+        setUpToolbar();
+        ((NavigationView)findViewById(R.id.navigation)).setNavigationItemSelectedListener(this);
 
-        mImageView.setOnItemSelectedClickListener(new ItemSelectedListener() {
-            @Override
-            public void onSelected(View view) {
-                Toast.makeText(getApplicationContext(), "onSelected", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onUnselected(View view) {
-                Toast.makeText(getApplicationContext(), "onUnselected", Toast.LENGTH_SHORT).show();
-            }
-        });
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.container, new ProfileFragment())
+                .commit();
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+    private void setUpToolbar() {
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            toolbar.setNavigationIcon(R.drawable.ic_menu_white_24dp);
+            setSupportActionBar(toolbar);
+            toolbar.setNavigationOnClickListener(this);
         }
-
-        return super.onOptionsItemSelected(item);
     }
 
     @Override
-    public void onSelected(View view) {
-        //mAdditionalLayout.setVisibility(View.VISIBLE);
+    public void onClick(View v) {
+        mDrawerLayout.openDrawer(GravityCompat.START);
     }
 
     @Override
-    public void onUnselected(View view) {
-        //mAdditionalLayout.setVisibility(View.GONE);
+    public boolean onNavigationItemSelected(MenuItem menuItem) {
+        menuItem.setChecked(true);
+        switch (menuItem.getItemId()) {
+            case R.id.item_profile:
+                mDrawerLayout.closeDrawers();
+                Snackbar.make(findViewById(R.id.container), R.string.action_profile, Snackbar.LENGTH_SHORT).show();
+                return true;
+            case R.id.item_settings:
+                mDrawerLayout.closeDrawers();
+                Snackbar.make(findViewById(R.id.container), R.string.action_settings, Snackbar.LENGTH_SHORT).show();
+                return true;
+        }
+        return false;
     }
 }
+
