@@ -55,6 +55,8 @@ public class CircleImageView extends ImageView {
     private ItemSelectedListener mListener;
     private boolean mIsSelected;
 
+    private int mBackgroundColor;
+
     public CircleImageView(Context context) {
         this(context, null, R.styleable.CircleImageViewStyle_circleImageViewDefault);
     }
@@ -75,42 +77,35 @@ public class CircleImageView extends ImageView {
     }
 
     private void init(Context context, AttributeSet attrs, int defStyleAttr) {
-        // Init paint
-        mPaintImage = new Paint();
-        mPaintImage.setAntiAlias(true);
-
-        mPaintBorder = new Paint();
-        mPaintBorder.setAntiAlias(true);
-
-        mPaintBackground = new Paint();
-        mPaintBackground.setAntiAlias(true);
-
         // Load the styled attributes and set their properties
         TypedArray attributes = context.obtainStyledAttributes(attrs, R.styleable.CircleImageView, defStyleAttr, 0);
+        mBackgroundColor = attributes.getColor(R.styleable.CircleImageView_view_backgroundColor,
+                context.getResources().getColor(android.R.color.transparent));
+        mBorderColor = attributes.getColor(R.styleable.CircleImageView_view_borderColor, DEFAULT_BORDER_COLOR);
+        mBorderWidth = attributes.getDimensionPixelOffset(R.styleable.CircleImageView_view_borderWidth, DEFAULT_BORDER_WIDTH);
+        mBorderSelectedColor = attributes.getColor(R.styleable.CircleImageView_view_selectedColor, DEFAULT_BORDER_SELECTED_COLOR);
+        mShadowRadius = attributes.getDimension(R.styleable.CircleImageView_view_shadowRadius, DEFAULT_SHADOW_RADIUS);
+        mShadowColor = attributes.getColor(R.styleable.CircleImageView_view_shadowColor, DEFAULT_SHADOW_COLOR);
+        mShadowDx = attributes.getDimension(R.styleable.CircleImageView_view_shadowDx, DEFAULT_SHADOW_DX);
+        mShadowDy = attributes.getDimension(R.styleable.CircleImageView_view_shadowDy, DEFAULT_SHADOW_DY);
+        attributes.recycle();
+
+        // Init paint
+        mPaintImage = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mPaintBorder = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mPaintBackground = new Paint(Paint.ANTI_ALIAS_FLAG);
 
         //background color
-        setBackgroundColor(
-                attributes.getColor(R.styleable.CircleImageView_view_backgroundColor,
-                        context.getResources().getColor(android.R.color.transparent)));
+        setBackgroundColor(mBackgroundColor);
 
         //border color
-        mBorderColor = attributes.getColor(R.styleable.CircleImageView_view_borderColor, DEFAULT_BORDER_COLOR);
         setBorderColor(mBorderColor);
 
-
         //border width
-        setBorderWidth(
-                attributes.getDimensionPixelOffset(R.styleable.CircleImageView_view_borderWidth, DEFAULT_BORDER_WIDTH));
-
-        //selected border color
-        mBorderSelectedColor = attributes.getColor(R.styleable.CircleImageView_view_selectedColor, DEFAULT_BORDER_SELECTED_COLOR);
+        setBorderWidth(mBorderWidth);
 
         //shadow radius, color, dx, dy
-        drawShadow(
-                attributes.getDimension(R.styleable.CircleImageView_view_shadowRadius, DEFAULT_SHADOW_RADIUS),
-                attributes.getColor(R.styleable.CircleImageView_view_shadowColor, DEFAULT_SHADOW_COLOR),
-                attributes.getDimension(R.styleable.CircleImageView_view_shadowDx, DEFAULT_SHADOW_DX),
-                attributes.getDimension(R.styleable.CircleImageView_view_shadowDy, DEFAULT_SHADOW_DY));
+        drawShadow(mShadowRadius, mShadowColor, mShadowDx, mShadowDy);
     }
 
     @Override
@@ -140,7 +135,9 @@ public class CircleImageView extends ImageView {
     }
 
     public void setBorderWidth(int borderWidth) {
-        this.mBorderWidth = borderWidth;
+        if (mBackgroundColor != borderWidth) {
+            this.mBorderWidth = borderWidth;
+        }
         requestLayout();
         invalidate();
     }
@@ -237,10 +234,18 @@ public class CircleImageView extends ImageView {
     }
 
     private void drawShadow(float shadowRadius, int shadowColor, float shadowDx, float shadowDy) {
-        this.mShadowRadius = shadowRadius;
-        this.mShadowColor = shadowColor;
-        this.mShadowDx = shadowDx;
-        this.mShadowDy = shadowDy;
+        if (mShadowRadius != shadowRadius) {
+            this.mShadowRadius = shadowRadius;
+        }
+        if (mShadowColor != shadowColor) {
+            this.mShadowColor = shadowColor;
+        }
+        if (mShadowDx != shadowDx) {
+            this.mShadowDx = shadowDx;
+        }
+        if (mShadowDy != shadowDy) {
+            this.mShadowDy = shadowDy;
+        }
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.HONEYCOMB) {
             setLayerType(LAYER_TYPE_SOFTWARE, mPaintBorder);
         }
