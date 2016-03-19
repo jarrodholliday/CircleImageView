@@ -14,6 +14,8 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.ThumbnailUtils;
 import android.os.Build;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -53,7 +55,7 @@ public class CircleImageView extends ImageView {
     private int mRadius;
 
     private ItemSelectedListener mListener;
-    private boolean mIsSelected;
+    private boolean mIsSelectedState;
 
     private int mBackgroundColor;
 
@@ -77,6 +79,8 @@ public class CircleImageView extends ImageView {
     }
 
     private void init(Context context, AttributeSet attrs, int defStyleAttr) {
+        setSaveEnabled(true);
+
         // Load the styled attributes and set their properties
         TypedArray attributes = context.obtainStyledAttributes(attrs, R.styleable.CircleImageView, defStyleAttr, 0);
         mBackgroundColor = attributes.getColor(R.styleable.CircleImageView_view_backgroundColor,
@@ -110,17 +114,18 @@ public class CircleImageView extends ImageView {
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
+        Log.d("CIRCLE_IMAGE_VIEW", "[dispatchTouchEvent]: mIsSelectedState = " + mIsSelectedState);
         if (!isClickable()) {
-            mIsSelected = false;
+            mIsSelectedState = false;
             return super.onTouchEvent(event);
         }
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                this.mIsSelected = !mIsSelected;
-                if (mIsSelected && mListener != null) {
+                this.mIsSelectedState = !mIsSelectedState;
+                if (mIsSelectedState && mListener != null) {
                     mListener.onSelected(this);
                     setBorderColor(mBorderSelectedColor);
-                } else if (!mIsSelected && mListener != null) {
+                } else if (!mIsSelectedState && mListener != null) {
                     mListener.onUnselected(this);
                     setBorderColor(mBorderColor);
                 }
@@ -193,6 +198,36 @@ public class CircleImageView extends ImageView {
         canvas.drawCircle(mCenterX + mBorderWidth, mCenterY + mBorderWidth, mRadius + mBorderWidth - (mShadowRadius + mShadowRadius / 2), mPaintBorder);
         canvas.drawCircle(mCenterX + mBorderWidth, mCenterY + mBorderWidth, mRadius - (mShadowRadius + mShadowRadius / 2), mPaintBackground);
         canvas.drawCircle(mCenterX + mBorderWidth, mCenterY + mBorderWidth, mRadius - (mShadowRadius + mShadowRadius / 2), mPaintImage);
+    }
+
+    @Override
+    protected Parcelable onSaveInstanceState() {
+        Parcelable superState = super.onSaveInstanceState();
+        SavedState savedState = new SavedState(superState);
+
+        savedState.mSelected = mIsSelectedState;
+        return savedState;
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Parcelable state) {
+        if(!(state instanceof SavedState)) {
+            super.onRestoreInstanceState(state);
+            return;
+        }
+
+        SavedState savedState = (SavedState)state;
+        super.onRestoreInstanceState(savedState.getSuperState());
+        setSelectedState(savedState.mSelected);
+        setBorderColor(mBorderSelectedColor);
+        //mIsSelected = savedState.mSelected;
+
+//        updateBorderColor();
+    }
+
+    private void setSelectedState(boolean isSelected) {
+        Log.d("CIRCLE_IMAGE_VIEW", "[setSelectedState]: isSelected = " + isSelected);
+        mIsSelectedState = isSelected;
     }
 
     private void calculateCircleData(Canvas canvas) {
@@ -341,5 +376,34 @@ public class CircleImageView extends ImageView {
             result = mCanvasSize;
         }
         return (result + 2);
+    }
+
+    private static class SavedState extends BaseSavedState {
+        boolean mSelected;
+
+        SavedState(Parcelable superState) {
+            super(superState);
+        }
+
+        private SavedState(Parcel in) {
+            super(in);
+            mSelected = in.readByte() != 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel out, int flags) {
+            super.writeToParcel(out, flags);
+            out.writeByte((byte) (mSelected ? 1 : 0));
+        }
+
+        public static final Parcelable.Creator<SavedState> CREATOR =
+                new Parcelable.Creator<SavedState>() {
+                    public SavedState createFromParcel(Parcel in) {
+                        return new SavedState(in);
+                    }
+                    public SavedState[] newArray(int size) {
+                        return new SavedState[size];
+                    }
+                };
     }
 }
