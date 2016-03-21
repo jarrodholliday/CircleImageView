@@ -12,8 +12,7 @@
 
     <TextView
         android:id="@+id/nameTextView"
-        android:textSize="22dp"
-        android:text="test"
+        android:textSize="22sp"
         android:gravity="center_vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

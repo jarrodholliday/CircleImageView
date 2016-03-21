@@ -20,6 +20,13 @@
         app:view_shadowColor="@color/grey"
         app:view_borderWidth="4dp"
         app:view_selectedColor="@color/blue"
-        app:view_borderColor="@android:color/darker_gray"/>
+        app:view_borderColor="@android:color/darker_gray"
+        android:visibility="gone" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/imageView" />
 
 </RelativeLayout>

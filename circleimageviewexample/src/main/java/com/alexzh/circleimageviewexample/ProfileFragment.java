@@ -3,6 +3,9 @@ package com.alexzh.circleimageviewexample;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +13,7 @@ import android.widget.Toast;
 
 import com.alexzh.circleimageview.CircleImageView;
 import com.alexzh.circleimageview.ItemSelectedListener;
+import com.alexzh.circleimageviewexample.data.DummyList;
 
 
 public class ProfileFragment extends Fragment implements ItemSelectedListener {
@@ -21,6 +25,12 @@ public class ProfileFragment extends Fragment implements ItemSelectedListener {
 
         CircleImageView circleImageView = (CircleImageView) view.findViewById(R.id.imageView);
         circleImageView.setOnItemSelectedClickListener(this);
+
+        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.recyclerView);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.setAdapter(new AndroidVersionAdapter(getActivity(), DummyList.getAndroidVersionList()));
 
         return view;
     }
