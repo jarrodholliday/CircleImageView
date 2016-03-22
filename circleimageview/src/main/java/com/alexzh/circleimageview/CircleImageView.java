@@ -1,5 +1,6 @@
 package com.alexzh.circleimageview;
 
+import android.animation.ObjectAnimator;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -14,8 +15,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.ThumbnailUtils;
 import android.os.Build;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -33,6 +32,12 @@ public class CircleImageView extends ImageView {
     private static final float DEFAULT_SHADOW_DX = 0.0f;
     private static final float DEFAULT_SHADOW_DY = 0.0f;
     private static final int DEFAULT_BORDER_WIDTH = 0;
+
+    private static final float DEFAULT_PRESSED_RING_WIDTH = 0.0f;
+    private static final int DEFAULT_PRESSED_RING_COLOR = Color.CYAN;
+
+    private static final int ANIMATION_TIME = android.R.integer.config_shortAnimTime;
+    private static final String ANIMATION_PROGRESS_ATTR = "animationProgress";
 
     private int mBorderWidth;
     private int mCanvasSize;
@@ -58,6 +63,11 @@ public class CircleImageView extends ImageView {
     private boolean mIsSelectedState;
 
     private int mBackgroundColor;
+    private float mAnimationProgress;
+
+    private ObjectAnimator mPressedAnimator;
+    private int mPressedRingWidth;
+    private int mPressedRingColor;
 
     public CircleImageView(Context context) {
         this(context, null, R.styleable.CircleImageViewStyle_circleImageViewDefault);
@@ -79,6 +89,8 @@ public class CircleImageView extends ImageView {
     }
 
     private void init(Context context, AttributeSet attrs, int defStyleAttr) {
+        setClickable(true);
+
         // Load the styled attributes and set their properties
         TypedArray attributes = context.obtainStyledAttributes(attrs, R.styleable.CircleImageView, defStyleAttr, 0);
         mBackgroundColor = attributes.getColor(R.styleable.CircleImageView_view_backgroundColor,
@@ -90,7 +102,13 @@ public class CircleImageView extends ImageView {
         mShadowColor = attributes.getColor(R.styleable.CircleImageView_view_shadowColor, DEFAULT_SHADOW_COLOR);
         mShadowDx = attributes.getDimension(R.styleable.CircleImageView_view_shadowDx, DEFAULT_SHADOW_DX);
         mShadowDy = attributes.getDimension(R.styleable.CircleImageView_view_shadowDy, DEFAULT_SHADOW_DY);
+        mPressedRingWidth = (int) attributes.getDimension(R.styleable.CircleImageView_view_pressedRingWidth, DEFAULT_PRESSED_RING_WIDTH);
+        mPressedRingColor = attributes.getColor(R.styleable.CircleImageView_view_pressedRingColor, DEFAULT_PRESSED_RING_COLOR);
         attributes.recycle();
+
+        //Init pressed animation
+        mPressedAnimator = ObjectAnimator.ofFloat(this, ANIMATION_PROGRESS_ATTR, 0f, 0f);
+        mPressedAnimator.setDuration(getResources().getInteger(ANIMATION_TIME));
 
         // Init paint
         mPaintImage = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -112,7 +130,6 @@ public class CircleImageView extends ImageView {
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
-        Log.d("CIRCLE_IMAGE_VIEW", "[dispatchTouchEvent]: mIsSelectedState = " + mIsSelectedState);
         if (!isClickable()) {
             mIsSelectedState = false;
             return super.onTouchEvent(event);
@@ -193,7 +210,7 @@ public class CircleImageView extends ImageView {
             return;
 
         calculateCircleData(canvas);
-        canvas.drawCircle(mCenterX + mBorderWidth, mCenterY + mBorderWidth, mRadius + mBorderWidth - (mShadowRadius + mShadowRadius / 2), mPaintBorder);
+        canvas.drawCircle(mCenterX + mBorderWidth, mCenterY + mBorderWidth, mRadius + mBorderWidth - (mShadowRadius + mShadowRadius / 2) + mAnimationProgress, mPaintBorder);
         canvas.drawCircle(mCenterX + mBorderWidth, mCenterY + mBorderWidth, mRadius - (mShadowRadius + mShadowRadius / 2), mPaintBackground);
         canvas.drawCircle(mCenterX + mBorderWidth, mCenterY + mBorderWidth, mRadius - (mShadowRadius + mShadowRadius / 2), mPaintImage);
     }
@@ -202,17 +219,17 @@ public class CircleImageView extends ImageView {
         if (mRadius != 0)
             return;
 
-        mCanvasSize = canvas.getWidth() - getPaddingLeft() - getPaddingRight() - (mBorderWidth * 2);
-        if ((canvas.getHeight() - getPaddingTop() - getPaddingBottom() - (mBorderWidth *2)) < mCanvasSize) {
-            mCanvasSize = canvas.getHeight() - getPaddingTop() - getPaddingBottom() - (mBorderWidth *2);
+        mCanvasSize = canvas.getWidth() - getPaddingLeft() - getPaddingRight() - (Math.abs(mPressedRingWidth - mBorderWidth) * 2);
+        if ((canvas.getHeight() - getPaddingTop() - getPaddingBottom() - (Math.abs(mPressedRingWidth - mBorderWidth) * 2)) < mCanvasSize) {
+            mCanvasSize = canvas.getHeight() - getPaddingTop() - getPaddingBottom() - (Math.abs(mPressedRingWidth - mBorderWidth) * 2);
         }
 
         //Calculate radius
         mRadius = (mCanvasSize - (mBorderWidth * 2)) / 2;
 
         //calculate center points
-        mCenterX = getPaddingLeft() + mRadius + mBorderWidth;
-        mCenterY = getPaddingTop() + mRadius + mBorderWidth;
+        mCenterX = getPaddingLeft() + mRadius + Math.abs(mPressedRingWidth - mBorderWidth);
+        mCenterY = getPaddingTop() + mRadius + Math.abs(mPressedRingWidth - mBorderWidth);
 
         updateShader();
     }
@@ -271,7 +288,7 @@ public class CircleImageView extends ImageView {
                 true),
                 Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
 
-        matrix.postTranslate(getPaddingLeft() + mBorderWidth, getPaddingTop() + mBorderWidth);
+        matrix.postTranslate(getPaddingLeft() + mBorderWidth, getPaddingTop() + Math.abs(mPressedRingWidth - mBorderWidth));
         shader.setLocalMatrix(matrix);
         mPaintImage.setShader(shader);
     }
@@ -344,5 +361,40 @@ public class CircleImageView extends ImageView {
             result = mCanvasSize;
         }
         return (result + 2);
+    }
+
+    @Override
+    public void setPressed(boolean pressed) {
+        super.setPressed(pressed);
+
+        if (mPaintBorder != null) {
+            mPaintBorder.setColor(pressed ? mPressedRingColor : mBorderColor);
+        }
+
+        if (pressed) {
+            showPressedRing();
+        } else {
+            hidePressedRing();
+        }
+    }
+
+    private float getAnimationProgress() {
+        return mAnimationProgress;
+    }
+
+    private void setAnimationProgress(float progress) {
+        this.mAnimationProgress = progress;
+        invalidate();
+
+    }
+
+    private void showPressedRing() {
+        mPressedAnimator.setFloatValues(mAnimationProgress, mPressedRingWidth);
+        mPressedAnimator.start();
+    }
+
+    private void hidePressedRing() {
+        mPressedAnimator.setFloatValues(mPressedRingWidth, 0f);
+        mPressedAnimator.start();
     }
 }

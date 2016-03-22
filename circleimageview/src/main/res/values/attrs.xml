@@ -20,6 +20,11 @@
         <attr name="view_shadowDy" format="dimension"/>
         <!-- The color of shadow -->
         <attr name="view_shadowColor" format="color"/>
+
+        <!-- The radius of pressed animated ring -->
+        <attr name="view_pressedRingWidth" format="dimension"/>
+        <!-- The color of pressed animated ring -->
+        <attr name="view_pressedRingColor" format="color"/>
     </declare-styleable>
 
     <declare-styleable name="CircleImageViewStyle">
