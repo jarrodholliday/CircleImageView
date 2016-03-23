@@ -17,7 +17,6 @@ import android.media.ThumbnailUtils;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.widget.ImageView;
 
 /**
@@ -66,8 +65,9 @@ public class CircleImageView extends ImageView {
     private float mAnimationProgress;
 
     private ObjectAnimator mPressedAnimator;
-    private int mPressedRingWidth;
     private int mPressedRingColor;
+    private int mPressedRingWidth;
+    private int mCurrentPressedRingWidth;
 
     public CircleImageView(Context context) {
         this(context, null, R.styleable.CircleImageViewStyle_circleImageViewDefault);
@@ -126,28 +126,6 @@ public class CircleImageView extends ImageView {
 
         //shadow radius, color, dx, dy
         drawShadow(mShadowRadius, mShadowColor, mShadowDx, mShadowDy);
-    }
-
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent event) {
-        if (!isClickable()) {
-            mIsSelectedState = false;
-            return super.onTouchEvent(event);
-        }
-        switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-                this.mIsSelectedState = !mIsSelectedState;
-                if (mIsSelectedState && mListener != null) {
-                    mListener.onSelected(this);
-                    setBorderColor(mBorderSelectedColor);
-                } else if (!mIsSelectedState && mListener != null) {
-                    mListener.onUnselected(this);
-                    setBorderColor(mBorderColor);
-                }
-                break;
-        }
-        invalidate();
-        return super.dispatchTouchEvent(event);
     }
 
     public void setOnItemSelectedClickListener(ItemSelectedListener listener) {
@@ -368,13 +346,19 @@ public class CircleImageView extends ImageView {
         super.setPressed(pressed);
 
         if (mPaintBorder != null) {
-            mPaintBorder.setColor(pressed ? mPressedRingColor : mBorderColor);
+            if (mIsSelectedState) {
+                mPaintBorder.setColor(pressed ? mPressedRingColor : mBorderSelectedColor);
+            } else {
+                mPaintBorder.setColor(pressed ? mPressedRingColor : mBorderColor);
+            }
         }
 
+        mCurrentPressedRingWidth = (int) getAnimationProgress();
         if (pressed) {
             showPressedRing();
         } else {
-            hidePressedRing();
+            hidePressedRing(mCurrentPressedRingWidth);
+
         }
     }
 
@@ -389,12 +373,19 @@ public class CircleImageView extends ImageView {
     }
 
     private void showPressedRing() {
+        mCurrentPressedRingWidth = 0;
         mPressedAnimator.setFloatValues(mAnimationProgress, mPressedRingWidth);
         mPressedAnimator.start();
+        mIsSelectedState = !mIsSelectedState;
     }
 
-    private void hidePressedRing() {
-        mPressedAnimator.setFloatValues(mPressedRingWidth, 0f);
+    private void hidePressedRing(int currentPressedRingWidth) {
+        mPressedAnimator.setFloatValues(currentPressedRingWidth, 0f);
         mPressedAnimator.start();
+        if (mIsSelectedState) {
+            mListener.onSelected(this);
+        } else {
+            mListener.onUnselected(this);
+        }
     }
 }
