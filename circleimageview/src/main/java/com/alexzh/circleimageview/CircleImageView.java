@@ -10,10 +10,10 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.media.ThumbnailUtils;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -197,17 +197,17 @@ public class CircleImageView extends ImageView {
         if (mRadius != 0)
             return;
 
-        mCanvasSize = canvas.getWidth() - getPaddingLeft() - getPaddingRight() - (Math.abs(mPressedRingWidth - mBorderWidth) * 2);
-        if ((canvas.getHeight() - getPaddingTop() - getPaddingBottom() - (Math.abs(mPressedRingWidth - mBorderWidth) * 2)) < mCanvasSize) {
-            mCanvasSize = canvas.getHeight() - getPaddingTop() - getPaddingBottom() - (Math.abs(mPressedRingWidth - mBorderWidth) * 2);
+        mCanvasSize = canvas.getWidth() - getPaddingLeft() - getPaddingRight() - getTwiceValue(getPressedRingBorderDifference());
+        if ((canvas.getHeight() - getPaddingTop() - getPaddingBottom() - getTwiceValue(getPressedRingBorderDifference())) < mCanvasSize) {
+            mCanvasSize = canvas.getHeight() - getPaddingTop() - getPaddingBottom() - getTwiceValue(getPressedRingBorderDifference());
         }
 
         //Calculate radius
         mRadius = (mCanvasSize - (mBorderWidth * 2)) / 2;
 
         //calculate center points
-        mCenterX = getPaddingLeft() + mRadius + Math.abs(mPressedRingWidth - mBorderWidth);
-        mCenterY = getPaddingTop() + mRadius + Math.abs(mPressedRingWidth - mBorderWidth);
+        mCenterX = getPaddingLeft() + mRadius + Math.abs(getPressedRingBorderDifference());
+        mCenterY = getPaddingTop() + mRadius + Math.abs(getPressedRingBorderDifference());
 
         updateShader();
     }
@@ -256,19 +256,36 @@ public class CircleImageView extends ImageView {
 
         Matrix matrix = new Matrix();
 
-        BitmapShader shader = new BitmapShader(Bitmap.createScaledBitmap(
-                ThumbnailUtils.extractThumbnail(
-                        mImageBitmap,
-                        mCanvasSize,
-                        mCanvasSize),
-                mCanvasSize,
-                mCanvasSize,
-                true),
-                Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
+        mImageBitmap = cropBitmap(mImageBitmap);
 
-        matrix.postTranslate(getPaddingLeft() + mBorderWidth, getPaddingTop() + Math.abs(mPressedRingWidth - mBorderWidth));
+        BitmapShader shader = new BitmapShader(mImageBitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
+        RectF bitmapRect = new RectF(0, 0, mImageBitmap.getWidth(), mImageBitmap.getHeight());
+        RectF viewRect = new RectF(0, 0, mCanvasSize - (mBorderWidth * 2), mCanvasSize - (mBorderWidth * 2));
+        matrix.setRectToRect(bitmapRect, viewRect, Matrix.ScaleToFit.CENTER);
+        matrix.postTranslate(
+                getPressedRingBorderDifference() + getPaddingLeft() + mBorderWidth,
+                getPressedRingBorderDifference() + getPaddingTop() + mBorderWidth);
+
         shader.setLocalMatrix(matrix);
         mPaintImage.setShader(shader);
+    }
+
+    private Bitmap cropBitmap(Bitmap bitmap) {
+        Bitmap bmp;
+        if (bitmap.getWidth() >= bitmap.getHeight()) {
+            bmp = Bitmap.createBitmap(
+                    bitmap,
+                    bitmap.getWidth() / 2 - bitmap.getHeight() / 2,
+                    0,
+                    bitmap.getHeight(), bitmap.getHeight());
+        } else {
+            bmp = Bitmap.createBitmap(
+                    bitmap,
+                    0,
+                    bitmap.getHeight() / 2 - bitmap.getWidth() / 2,
+                    bitmap.getWidth(), bitmap.getWidth());
+        }
+        return bmp;
     }
 
     private Bitmap drawableToBitmap(Drawable drawable) {
@@ -360,6 +377,14 @@ public class CircleImageView extends ImageView {
             hidePressedRing(mCurrentPressedRingWidth);
 
         }
+    }
+
+    private int getPressedRingBorderDifference() {
+        return Math.abs(mPressedRingWidth - mBorderWidth);
+    }
+
+    private int getTwiceValue(int value) {
+        return value + value;
     }
 
     private float getAnimationProgress() {
