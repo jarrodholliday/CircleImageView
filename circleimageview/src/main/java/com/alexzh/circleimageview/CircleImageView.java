@@ -1,6 +1,5 @@
 package com.alexzh.circleimageview;
 
-import android.animation.ObjectAnimator;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -18,6 +17,8 @@ import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.widget.ImageView;
+
+import com.nineoldandroids.animation.ObjectAnimator;
 
 /**
  * Custom ImageView for circular images in Android.
@@ -394,7 +395,6 @@ public class CircleImageView extends ImageView {
     private void setAnimationProgress(float progress) {
         this.mAnimationProgress = progress;
         invalidate();
-
     }
 
     private void showPressedRing() {
