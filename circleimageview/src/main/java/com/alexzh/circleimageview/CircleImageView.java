@@ -20,6 +20,10 @@ import android.widget.ImageView;
 
 import com.nineoldandroids.animation.ObjectAnimator;
 
+import static com.alexzh.circleimageview.utils.MathUtils.getBorderMax;
+import static com.alexzh.circleimageview.utils.MathUtils.getValuesDifference;
+import static com.alexzh.circleimageview.utils.MathUtils.twiceValue;
+
 /**
  * Custom ImageView for circular images in Android.
  */
@@ -199,18 +203,18 @@ public class CircleImageView extends ImageView {
             return;
 
         if (!isInEditMode()) {
-            mCanvasSize = canvas.getWidth() - getPaddingLeft() - getPaddingRight() - getTwiceValue(getBorderMax());
-            if ((canvas.getHeight() - getPaddingTop() - getPaddingBottom() - getTwiceValue(getBorderMax())) < mCanvasSize) {
-                mCanvasSize = canvas.getHeight() - getPaddingTop() - getPaddingBottom() - getTwiceValue(getBorderMax());
+            mCanvasSize = canvas.getWidth() - getPaddingLeft() - getPaddingRight() - twiceValue(getBorderMax(mPressedRingWidth, mBorderWidth));
+            if ((canvas.getHeight() - getPaddingTop() - getPaddingBottom() - twiceValue(getBorderMax(mPressedRingWidth, mBorderWidth))) < mCanvasSize) {
+                mCanvasSize = canvas.getHeight() - getPaddingTop() - getPaddingBottom() - twiceValue(getBorderMax(mPressedRingWidth, mBorderWidth));
             }
         }
 
         //Calculate radius
-        mRadius = (mCanvasSize - (getBorderMax() * 2)) / 2;
+        mRadius = (mCanvasSize - (getBorderMax(mPressedRingWidth, mBorderWidth) * 2)) / 2;
 
         //calculate center points
-        mCenterX = getPaddingLeft() + mRadius + Math.abs(getBorderMax());
-        mCenterY = getPaddingTop() + mRadius + Math.abs(getBorderMax());
+        mCenterX = getPaddingLeft() + mRadius + Math.abs(getBorderMax(mPressedRingWidth, mBorderWidth));
+        mCenterY = getPaddingTop() + mRadius + Math.abs(getBorderMax(mPressedRingWidth, mBorderWidth));
 
         updateShader();
     }
@@ -263,11 +267,11 @@ public class CircleImageView extends ImageView {
 
         BitmapShader shader = new BitmapShader(mImageBitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
         RectF bitmapRect = new RectF(0, 0, mImageBitmap.getWidth(), mImageBitmap.getHeight());
-        RectF viewRect = new RectF(0, 0, mCanvasSize - (getBorderMax() * 2), mCanvasSize - (getBorderMax() * 2));
+        RectF viewRect = new RectF(0, 0, mCanvasSize - (getBorderMax(mPressedRingWidth, mBorderWidth) * 2), mCanvasSize - (getBorderMax(mPressedRingWidth, mBorderWidth) * 2));
         matrix.setRectToRect(bitmapRect, viewRect, Matrix.ScaleToFit.CENTER);
         matrix.postTranslate(
-                getPressedRingBorderDifference() + getPaddingLeft() + mBorderWidth,
-                getPressedRingBorderDifference() + getPaddingTop() + mBorderWidth);
+                getValuesDifference(mPressedRingWidth, mBorderWidth) + getPaddingLeft() + mBorderWidth,
+                getValuesDifference(mPressedRingWidth, mBorderWidth) + getPaddingTop() + mBorderWidth);
 
         shader.setLocalMatrix(matrix);
         mPaintImage.setShader(shader);
@@ -382,17 +386,9 @@ public class CircleImageView extends ImageView {
         }
     }
 
-    private int getPressedRingBorderDifference() {
-        return Math.abs(mPressedRingWidth - mBorderWidth);
-    }
 
-    private int getBorderMax() {
-        return mPressedRingWidth > mBorderWidth ? mPressedRingWidth : mBorderWidth;
-    }
 
-    private int getTwiceValue(int value) {
-        return value + value;
-    }
+
 
     private float getAnimationProgress() {
         return mAnimationProgress;
