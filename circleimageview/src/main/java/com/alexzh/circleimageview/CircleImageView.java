@@ -193,9 +193,24 @@ public class CircleImageView extends ImageView {
             return;
 
         calculateCircleData(canvas);
-        canvas.drawCircle(mCenterX + mBorderWidth, mCenterY + mBorderWidth, mRadius + mBorderWidth - (mShadowRadius + mShadowRadius / 2) + mAnimationProgress, mPaintBorder);
-        canvas.drawCircle(mCenterX + mBorderWidth, mCenterY + mBorderWidth, mRadius - (mShadowRadius + mShadowRadius / 2), mPaintBackground);
-        canvas.drawCircle(mCenterX + mBorderWidth, mCenterY + mBorderWidth, mRadius - (mShadowRadius + mShadowRadius / 2), mPaintImage);
+
+        canvas.drawCircle(
+                mCenterX + mBorderWidth,
+                mCenterY + mBorderWidth,
+                mRadius + mBorderWidth - (mShadowRadius + mShadowRadius / 2) + mAnimationProgress,
+                mPaintBorder);
+
+        canvas.drawCircle(
+                mCenterX + mBorderWidth,
+                mCenterY + mBorderWidth,
+                mRadius - (mShadowRadius + mShadowRadius / 2),
+                mPaintBackground);
+
+        canvas.drawCircle(
+                mCenterX + mBorderWidth,
+                mCenterY + mBorderWidth,
+                mRadius - (mShadowRadius + mShadowRadius / 2),
+                mPaintImage);
     }
 
     private void calculateCircleData(Canvas canvas) {
@@ -265,9 +280,17 @@ public class CircleImageView extends ImageView {
 
         mImageBitmap = cropBitmap(mImageBitmap);
 
-        BitmapShader shader = new BitmapShader(mImageBitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
+        BitmapShader shader = new BitmapShader(
+                mImageBitmap,
+                Shader.TileMode.CLAMP,
+                Shader.TileMode.CLAMP);
         RectF bitmapRect = new RectF(0, 0, mImageBitmap.getWidth(), mImageBitmap.getHeight());
-        RectF viewRect = new RectF(0, 0, mCanvasSize - (getBorderMax(mPressedRingWidth, mBorderWidth) * 2), mCanvasSize - (getBorderMax(mPressedRingWidth, mBorderWidth) * 2));
+        RectF viewRect = new RectF(
+                0,
+                0,
+                mCanvasSize - twiceValue(getBorderMax(mPressedRingWidth, mBorderWidth)),
+                mCanvasSize - twiceValue(getBorderMax(mPressedRingWidth, mBorderWidth)));
+
         matrix.setRectToRect(bitmapRect, viewRect, Matrix.ScaleToFit.CENTER);
         matrix.postTranslate(
                 getBorderMax(mPressedRingWidth, mBorderWidth) + getPaddingLeft(),
