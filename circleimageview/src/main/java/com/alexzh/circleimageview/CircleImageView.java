@@ -270,8 +270,8 @@ public class CircleImageView extends ImageView {
         RectF viewRect = new RectF(0, 0, mCanvasSize - (getBorderMax(mPressedRingWidth, mBorderWidth) * 2), mCanvasSize - (getBorderMax(mPressedRingWidth, mBorderWidth) * 2));
         matrix.setRectToRect(bitmapRect, viewRect, Matrix.ScaleToFit.CENTER);
         matrix.postTranslate(
-                getValuesDifference(mPressedRingWidth, mBorderWidth) + getPaddingLeft() + mBorderWidth,
-                getValuesDifference(mPressedRingWidth, mBorderWidth) + getPaddingTop() + mBorderWidth);
+                getBorderMax(mPressedRingWidth, mBorderWidth) + getPaddingLeft(),
+                getBorderMax(mPressedRingWidth, mBorderWidth) + getPaddingTop());
 
         shader.setLocalMatrix(matrix);
         mPaintImage.setShader(shader);
@@ -385,10 +385,6 @@ public class CircleImageView extends ImageView {
 
         }
     }
-
-
-
-
 
     private float getAnimationProgress() {
         return mAnimationProgress;
