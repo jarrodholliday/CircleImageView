@@ -21,7 +21,6 @@ import android.widget.ImageView;
 import com.nineoldandroids.animation.ObjectAnimator;
 
 import static com.alexzh.circleimageview.utils.MathUtils.getBorderMax;
-import static com.alexzh.circleimageview.utils.MathUtils.getValuesDifference;
 import static com.alexzh.circleimageview.utils.MathUtils.twiceValue;
 
 /**
