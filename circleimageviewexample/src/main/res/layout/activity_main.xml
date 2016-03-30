@@ -1,31 +1,50 @@
-<android.support.v4.widget.DrawerLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/drawerLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+    <include
+        layout="@layout/toolbar" />
 
-        <include
-            layout="@layout/toolbar" />
+    <com.alexzh.circleimageview.CircleImageView
+        android:id="@+id/imageView"
+        android:layout_width="256dp"
+        android:layout_height="256dp"
+        android:clickable="true"
+        android:src="@drawable/android_m"
+        app:view_backgroundColor="@color/colorPrimary"
+        app:view_shadowRadius="4dp"
+        app:view_shadowDx="2dp"
+        app:view_shadowDy="0dp"
+        app:view_shadowColor="@color/grey"
+        app:view_borderWidth="4dp"
+        app:view_selectedColor="@color/blue"
+        app:view_borderColor="@android:color/darker_gray"
+        app:view_pressedRingWidth="23dp"
+        app:view_pressedRingColor="@color/colorPrimaryDark"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true" />
 
-        <FrameLayout
-            android:id="@+id/container"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
-
-    </LinearLayout>
-
-    <android.support.design.widget.NavigationView
-        android:id="@+id/navigation"
+    <TextView
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="start"
-        app:headerLayout="@layout/drawer_header"
-        app:menu="@menu/drawer_menu"  />
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/circle_image_view_selected"
+        android:id="@+id/selectedTextView"
+        android:layout_above="@+id/imageView"
+        android:visibility="gone"
+        android:layout_centerHorizontal="true" />
 
-</android.support.v4.widget.DrawerLayout>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/circle_image_view_unselected"
+        android:id="@+id/unselectedTextView"
+        android:layout_below="@+id/imageView"
+        android:visibility="gone"
+        android:layout_centerHorizontal="true" />
+
+</RelativeLayout>

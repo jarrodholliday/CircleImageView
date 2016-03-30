@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">CircleImageViewExample</string>
-    <string name="message_hello">Hello, Android!</string>
-    <string name="action_profile">Profile</string>
-    <string name="action_settings">Settings</string>
+    <string name="circle_image_view_selected">CircleImageView was selected</string>
+    <string name="circle_image_view_unselected">CircleImageView was unselected</string>
 </resources>
