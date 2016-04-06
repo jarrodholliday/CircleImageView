@@ -1,11 +1,15 @@
 # CircleImageView
 CircleImageView is a component which display circle image with customization options
 
-<img src="https://github.com/AlexZhukovich/CircleImageView/blob/master/screenshots/screen_1.1.4_1.png" width="300px" height="500px" />
-<img src="https://github.com/AlexZhukovich/CircleImageView/blob/master/screenshots/screen_1.1.4_2.png" width="300px" height="500px" />
+<img src="https://github.com/AlexZhukovich/CircleImageView/blob/master/screenshots/animated_circleImageView.gif" width="255px" height="475px" />
+<img src="https://github.com/AlexZhukovich/CircleImageView/blob/master/screenshots/non_animated_circleImageView.gif" width="255px" height="475px" />
 
 Release notes
 --------
+#####1.2.0
+* Implemented animation for pressed event
+* Added new attribute pressedRingWidth, pressedRingColor
+
 #####1.1.4
 * Fix bug (issue #3 on github)
 
@@ -35,17 +39,17 @@ To make a circular ImageView, add this CircleImageView library to your project a
 You can also grab it via Gradle:
 
 ```groovy
-      compile 'com.alexzh:circleimageview:1.1.4@aar'
+      compile 'com.alexzh:circleimageview:1.2.0'
 ```
 
 or Maven:
 
 ```xml
 <dependency>
-      <groupId>com.alexzh</groupId>
-      <artifactId>circleimageview</artifactId>
-      <version>1.1.4</version>
-      <type>aar</type>
+    <groupId>com.alexzh</groupId>
+    <artifactId>circleimageview</artifactId>
+    <version>1.2.0</version>
+    <type>pom</type>
 </dependency>
 ```
 
