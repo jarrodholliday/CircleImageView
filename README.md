@@ -2,7 +2,7 @@
 CircleImageView is a component which display circle image with customization options
 
 <img src="https://github.com/AlexZhukovich/CircleImageView/blob/master/screenshots/animated_circleImageView.gif" width="255px" height="475px" />
-<img src="https://github.com/AlexZhukovich/CircleImageView/blob/master/screenshots/non_animated_circleImageView.gif" width="255px" height="475px" />
+<img src="https://github.com/AlexZhukovich/CircleImageView/blob/master/screenshots/non_animated_circleImageView.gif" width="272px" height="475px" />
 
 Release notes
 --------
