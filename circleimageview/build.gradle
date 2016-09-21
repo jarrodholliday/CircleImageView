@@ -3,11 +3,11 @@ apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
 
 // This is the library version used when deploying the artifact
-version = "1.2.0"
+version = "1.2.1"
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion "23.0.2"
+    compileSdkVersion 24
+    buildToolsVersion '24.0.2'
     resourcePrefix "circleimageview__"
 
     defaultConfig {
@@ -20,9 +20,9 @@ android {
     }
 }
 
-def siteUrl = 'https://github.com/AlexZhukovich/CircleImageView'
-def gitUrl = 'https://github.com/AlexZhukovich/CircleImageView.git'
-group = "com.alexzh"
+def siteUrl = 'https://github.com/jarrodholliday/CircleImageView'
+def gitUrl = 'https://github.com/jarrodholliday/CircleImageView.git'
+group = "com.github.jarrodholliday"
 
 Properties properties = new Properties()
 properties.load(project.rootProject.file('local.properties').newDataInputStream())
@@ -65,6 +65,11 @@ install {
                         name 'Aliaksandr Zhukovich'
                         email 'zhukovich.a@gmail.com'
                     }
+                    developer {
+                        id 'jarrodholliday'
+                        name 'Jarrod Holliday'
+                        email 'jarrodholliday@gmail.com'
+                    }
                 }
                 scm {
                     connection gitUrl
@@ -78,8 +83,8 @@ install {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:appcompat-v7:23.2.1'
+    compile 'com.android.support:appcompat-v7:24.2.1'
+    compile 'com.nineoldandroids:library:2.4.0'
 }
 
 task sourcesJar(type: Jar) {
